@@ -1,0 +1,24 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: record
+  datasource:
+    url: jdbc:mysql://localhost:3306/kb_healthcare?rewriteBatchedStatements=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowMultiQueries=true
+    username: root
+    password: kb123#@!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 500
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
