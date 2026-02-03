@@ -25,8 +25,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(resourceServer ->
-                        resourceServer.jwt(jwt ->
-                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        resourceServer.jwt(jwt -> jwt
+                            .jwtAuthenticationConverter(jwtAuthenticationConverter())
                         )
                 )
                 .formLogin(form -> form.disable());
@@ -46,7 +46,7 @@ public class SecurityConfig {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
             // 1. scope 처리
             Collection<GrantedAuthority> authorities = new ArrayList<>(
-                    jwtGrantedAuthoritiesConverter.convert(jwt)
+                jwtGrantedAuthoritiesConverter.convert(jwt)
             );
 
             // 2. roles 처리

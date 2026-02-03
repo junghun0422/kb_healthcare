@@ -107,8 +107,8 @@ public class AuthServerApiService {
         }
 
         User user = userService.findById(Long.valueOf(userId)).orElseThrow(() -> new GlobalException(
-                UserEnums.State.유효하지_않은_고객.getCode(),
-                UserEnums.State.유효하지_않은_고객.getMessage()
+            UserEnums.State.유효하지_않은_고객.getCode(),
+            UserEnums.State.유효하지_않은_고객.getMessage()
         ));
 
         return ApiResponse.<TokenResponseDto>builder().data(

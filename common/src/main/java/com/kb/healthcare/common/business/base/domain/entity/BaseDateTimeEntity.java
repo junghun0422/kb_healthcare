@@ -5,6 +5,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import lombok.Getter;
+import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,10 +17,12 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class BaseDateTimeEntity {
 
+    @Comment("등록일시")
     @CreatedDate
     @Column(name = "create_datetime", nullable = false, updatable = false)
     private LocalDateTime createDatetime;
 
+    @Comment("수정일시")
     @LastModifiedDate
     @Column(name = "update_datetime", nullable = true, updatable = true)
     private LocalDateTime updateDatetime;

@@ -123,7 +123,7 @@ public class SecurityConfig {
             // OAuth2 Resource Server로 동작 (JWT 검증)
             .oauth2ResourceServer(resourceServer ->
                 resourceServer.jwt(jwt -> jwt
-                    // JWT를 Spring Security의 Authenticatino 객체로 변환
+                    // JWT를 Spring Security의 Authentication 객체로 변환
                    .jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
             )
