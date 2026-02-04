@@ -6,13 +6,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 
 @Tag(name = "Record API", description = "건강 기록 API")
@@ -38,6 +40,22 @@ public class RecordController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody RecordRequestDto request) {
         return ResponseEntity.ok().body(service.save(jwt, request));
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_write') && hasAnyRole('USER')")
+    @PostMapping("stream")
+    public ResponseEntity<?> saveStreaming(
+            @AuthenticationPrincipal Jwt jwt,
+            HttpServletRequest request) throws IOException {
+        return ResponseEntity.ok().body(service.saveStreaming(jwt, request));
+    }
+
+    @PreAuthorize("hasAuthority('SCOPE_read') && hasAnyRole('USER')")
+    @GetMapping
+    public ResponseEntity<?> records(
+        @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ResponseEntity.ok().body(service.getRecord(jwt));
     }
 
 }

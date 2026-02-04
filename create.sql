@@ -1,6 +1,6 @@
 # DATABASE 생성
 CREATE DATABASE kb_healthcare;
-	
+
 # 회원 테이블 생성
 -- DROP TABLE `kb_healthcare`.`user`;
 CREATE TABLE IF NOT EXISTS `kb_healthcare`.`user` (
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `kb_healthcare`.`user_identifier` (
 CREATE TABLE IF NOT EXISTS `kb_healthcare`.`user_roles` (
     user_id BIGINT UNSIGNED NOT NULL COMMENT '회원 시퀀스',
     role VARCHAR(50) NOT NULL COMMENT '역할 (USER, ADMIN 등)',
-PRIMARY KEY (`user_id`, `role`)
+    PRIMARY KEY (`user_id`, `role`)
 ) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT='회원 역할 테이블'
 ;
 
@@ -63,8 +63,27 @@ CREATE TABLE IF NOT EXISTS `kb_healthcare`.`source` (
     last_update TIMESTAMP NOT NULL COMMENT '마지막 수정 일시',
     create_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP() COMMENT '등록일시',
     UNIQUE KEY uq_user_source (user_id, record_key, mode)
-) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT '출처'
+    ) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT '출처'
 ;
+
+-- 	DROP TABLE `kb_healthcare`.`record_fail`;
+CREATE TABLE IF NOT EXISTS `kb_healthcare`.`record_fail`(
+    id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT COMMENT '기록실패 시퀀스',
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '회원 시퀀스',
+    record_key VARCHAR(100) NOT NULL COMMENT '사용자 구분 키',
+    source_id BIGINT UNSIGNED NOT NULL COMMENT '출처 시퀀스',
+    entry_json JSON NOT NULL COMMENT '건강 기록 실패 데이터',
+    retry_count TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '재시도 회수',
+    status VARCHAR(20) DEFAULT 'PENDING' COMMENT '상태',
+    create_datetime TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() COMMENT '등록일시',
+    update_datetime TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP() COMMENT '수정일시',
+    INDEX idx_status_retry (status, retry_count)
+) DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT '기록실패'
+;
+
+
+
+
 
 -- ALTER USER 'root'@'localhost' IDENTIFIED BY 'kb123#@!';
 -- FLUSH PRIVILEGES;

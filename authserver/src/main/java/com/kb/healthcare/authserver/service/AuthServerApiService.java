@@ -8,7 +8,6 @@ import com.kb.healthcare.common.business.user.domain.entity.User;
 import com.kb.healthcare.common.business.user.service.UserIdentifierService;
 import com.kb.healthcare.common.business.user.service.UserService;
 import com.kb.healthcare.common.dto.response.ApiResponse;
-import com.kb.healthcare.common.utils.UserEnums;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +21,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.kb.healthcare.common.utils.KBEnums.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -48,8 +49,8 @@ public class AuthServerApiService {
         User exist = userService.findByEmail(request.email());
         if(!Objects.isNull(exist)) {
             throw new GlobalException(
-                UserEnums.State.이미_존재하는_이메일.getCode(),
-                UserEnums.State.이미_존재하는_이메일.getMessage()
+                UserState.이미_존재하는_이메일.getCode(),
+                UserState.이미_존재하는_이메일.getMessage()
             );
         }
 
@@ -72,15 +73,15 @@ public class AuthServerApiService {
         User user = userService.findByEmail(request.email());
         if(Objects.isNull(user)) {
             throw new GlobalException(
-                    UserEnums.State.이미_존재하는_이메일.getCode(),
-                    UserEnums.State.이미_존재하는_이메일.getMessage()
+                    UserState.이미_존재하는_이메일.getCode(),
+                    UserState.이미_존재하는_이메일.getMessage()
             );
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new GlobalException(
-                UserEnums.State.로그인_실패.getCode(),
-                UserEnums.State.로그인_실패.getMessage()
+                UserState.로그인_실패.getCode(),
+                UserState.로그인_실패.getMessage()
             );
         }
 
@@ -101,14 +102,14 @@ public class AuthServerApiService {
 
         if(!StringUtils.pathEquals("refresh", type)) {
             throw new GlobalException(
-                UserEnums.State.유효하지_않은_토큰.getCode(),
-                UserEnums.State.유효하지_않은_토큰.getMessage()
+                UserState.유효하지_않은_토큰.getCode(),
+                UserState.유효하지_않은_토큰.getMessage()
             );
         }
 
         User user = userService.findById(Long.valueOf(userId)).orElseThrow(() -> new GlobalException(
-            UserEnums.State.유효하지_않은_고객.getCode(),
-            UserEnums.State.유효하지_않은_고객.getMessage()
+            UserState.유효하지_않은_고객.getCode(),
+            UserState.유효하지_않은_고객.getMessage()
         ));
 
         return ApiResponse.<TokenResponseDto>builder().data(

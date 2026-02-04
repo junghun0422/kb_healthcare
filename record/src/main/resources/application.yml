@@ -11,6 +11,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+      jdbc:
+        batch-size: 100
+      order_inserts: true
+      order_updates: true
     show-sql: true
     properties:
       hibernate:

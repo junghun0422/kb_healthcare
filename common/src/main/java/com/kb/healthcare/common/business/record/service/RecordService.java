@@ -1,9 +1,11 @@
 package com.kb.healthcare.common.business.record.service;
 
 import com.kb.healthcare.common.business.record.domain.entity.Record;
-import com.kb.healthcare.common.business.record.repository.RecordRepository;
+import com.kb.healthcare.common.business.record.dto.FindRecordResDto;import com.kb.healthcare.common.business.record.repository.RecordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,8 +15,9 @@ public class RecordService {
 
     private final RecordRepository repository;
 
-    public void save(Record record) { repository.save(record); }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveAllInNewTransaction(List<Record> records) { repository.saveAll(records); }
 
-    public void saveAll(List<Record> records) { repository.saveAll(records); }
+    public List<FindRecordResDto> findByRecordsByUserId(Long userId) { return repository.findByRecordsByUserId(userId); }
 
 }

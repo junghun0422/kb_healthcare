@@ -1,0 +1,75 @@
+### 회원가입
+POST localhost:9000/v1/user/join
+
+{
+    "name" : "아거",
+    "nickName" : "허당 미운오리",
+    "email" : "kb_duck@kbhc.co.kr",
+    "password" : "duck123!@#"
+}
+
+### 로그인
+POST localhost:9000/v1/user/login
+
+{
+    "email" : "kb_duck@kbhc.co.kr",
+    "password" : "duck123!@#"
+}
+
+### 걸음수 stream
+POST localhost:9001/v1/record/stream
+Authorization: Bearer eyJraWQiOiJmOGM2YTM1Mi0xYmZlLTRjMDEtOGI2YS01Zjk1YmNhOTBhYjYiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJrYl9kdWNrQGtiaGMuY28ua3IiLCJuaWNrTmFtZSI6Iu2XiOuLuSDrr7jsmrTsmKTrpqwiLCJzY29wZSI6InJlYWQgd3JpdGUiLCJyb2xlcyI6IlJPTEVfVVNFUiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6OTAwMCIsImV4cCI6MTc3MDE4MzQwOSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3MDE3OTgwOSwidXNlcklkIjo2fQ.RZUxMBEYXfn6bdaM2KHpT2-lwWIx7iblFfwqO_romrcB9zz552CEIBk9ENBR8V-YTOgrB4jc9GvnbTGGxSzrQYnbG3Z4LIkOVUsW-t7Uc99Eih3SOsHvzGZAer4Hfq87sTPA7esdpKfw6-EWQX7TZhi3aHAb7LyRvpQNmT72vt0oKJ0RK0RZFxKh2rY9_Nc1XvvOZiHcUiyk2o1L6h88cHgSPSoowQsEVtyXMI3a69v2Wjwsn5vGZaUsCmA34dGO8pixH-JCVmV0vvjfr46e34ezNWqnI0UTMCvhGxKhqt90BtF5L3_AHtZujDXzCj8UPaljrlnahTdtUm2l7XFiPw
+
+{
+    "recordkey" : "7836887b-b12a-440f-af0f-851546504b13",
+    "data": {
+        "memo": "",
+        "entries": [
+            {
+                "steps": "287.6726411513615",
+                "period": {
+                    "to": "2024-11-14T23:10:00+0000",
+                    "from": "2024-11-14T23:00:00+0000"
+                },
+                "distance": {
+                    "value": 0.2301381129210892,
+                    "unit": "km"
+                },
+                "calories": {
+                    "value": 0,
+                    "unit": "kcal"
+                }
+            },
+            {
+                "steps": "1031.128197585273",
+                "period": {
+                    "to": "2024-11-14T23:20:00+0000",
+                    "from": "2024-11-14T23:10:00+0000"
+                },
+                "distance": {
+                    "value": 0.8249025580682184,
+                    "unit": "km"
+                },
+                "calories": {
+                    "value": 0,
+                    "unit": "kcal"
+                }
+            }
+        ],
+        "source": {
+            "product": {
+                "name": "iPhone",
+                "vender": "Apple inc."
+            },
+            "type": "",
+            "mode": 10,
+            "name": "Health Kit"
+        }
+    },
+    "lastUpdate": "2024-12-16 14:40:00 +0000",
+    "type": "steps"
+}
+
+### 건강기록 조회
+GET localhost:9001/v1/record
+Authorization: Bearer eyJraWQiOiJmOGM2YTM1Mi0xYmZlLTRjMDEtOGI2YS01Zjk1YmNhOTBhYjYiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJrYl9kdWNrQGtiaGMuY28ua3IiLCJuaWNrTmFtZSI6Iu2XiOuLuSDrr7jsmrTsmKTrpqwiLCJzY29wZSI6InJlYWQgd3JpdGUiLCJyb2xlcyI6IlJPTEVfVVNFUiIsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6OTAwMCIsImV4cCI6MTc3MDE4MzQwOSwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc3MDE3OTgwOSwidXNlcklkIjo2fQ.RZUxMBEYXfn6bdaM2KHpT2-lwWIx7iblFfwqO_romrcB9zz552CEIBk9ENBR8V-YTOgrB4jc9GvnbTGGxSzrQYnbG3Z4LIkOVUsW-t7Uc99Eih3SOsHvzGZAer4Hfq87sTPA7esdpKfw6-EWQX7TZhi3aHAb7LyRvpQNmT72vt0oKJ0RK0RZFxKh2rY9_Nc1XvvOZiHcUiyk2o1L6h88cHgSPSoowQsEVtyXMI3a69v2Wjwsn5vGZaUsCmA34dGO8pixH-JCVmV0vvjfr46e34ezNWqnI0UTMCvhGxKhqt90BtF5L3_AHtZujDXzCj8UPaljrlnahTdtUm2l7XFiPw
