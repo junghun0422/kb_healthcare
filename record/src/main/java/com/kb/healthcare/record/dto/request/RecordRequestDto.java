@@ -110,7 +110,6 @@ public record RecordRequestDto(
         Calorie calories = entry.calories;
 
         return Record.builder()
-                        .user(user)
                         .source(source)
                         .steps(Integer.parseInt(String.valueOf(entry.steps)))
                         .periodFrom(period.from)

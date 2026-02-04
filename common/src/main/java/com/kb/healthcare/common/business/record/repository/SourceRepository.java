@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SourceRepository extends JpaRepository<Source, Long> {
 
-    Source findByUserIdAndRecordKeyAndMode(Long userId, String recordKey, int mode);
+    Source findByRecordKeyAndMode(String recordKey, int mode);
 
 }

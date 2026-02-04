@@ -11,8 +11,8 @@ public class SourceService {
 
     private final SourceRepository repository;
 
-    public Source findByUserIdAndRecordKeyAndMode(Long userId, String recordKey, int mode) {
-        return repository.findByUserIdAndRecordKeyAndMode(userId, recordKey, mode);
+    public Source findByRecordKeyAndMode(String recordKey, int mode) {
+        return repository.findByRecordKeyAndMode(recordKey, mode);
     }
 
     public Source save(Source source) { return repository.save(source); }

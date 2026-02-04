@@ -10,6 +10,7 @@ import java.util.List;
 import static com.kb.healthcare.common.business.record.domain.entity.QRecord.record;
 import static com.kb.healthcare.common.business.record.domain.entity.QSource.source;
 import static com.kb.healthcare.common.business.user.domain.entity.QUser.user;
+import static com.kb.healthcare.common.business.user.domain.entity.QUserIdentifier.userIdentifier;
 
 @RequiredArgsConstructor
 public class RecordRepositoryCustomImpl implements RecordRepositoryCustom {
@@ -38,8 +39,12 @@ public class RecordRepositoryCustomImpl implements RecordRepositoryCustom {
             )
         )
         .from(user)
-        .innerJoin(source).on(user.id.eq(source.user.id))
-        .innerJoin(record).on(source.id.eq(record.source.id))
+        .innerJoin(userIdentifier)
+                .on(user.id.eq(userIdentifier.user.id))
+        .innerJoin(source)
+                .on(source.recordKey.eq(userIdentifier.recordKey))
+        .innerJoin(record)
+                .on(record.source.id.eq(source.id))
         .where(user.id.eq(userId))
         .fetch();
     }

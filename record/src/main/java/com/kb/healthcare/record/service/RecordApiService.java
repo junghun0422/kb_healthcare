@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kb.healthcare.common.business.record.domain.entity.Record;
 import com.kb.healthcare.common.business.record.domain.entity.Source;
-import com.kb.healthcare.common.business.record.dto.FindRecordResDto;import com.kb.healthcare.common.business.record.service.RecordService;
+import com.kb.healthcare.common.business.record.dto.FindRecordResDto;
+import com.kb.healthcare.common.business.record.service.RecordService;
 import com.kb.healthcare.common.business.record.service.SourceService;
 import com.kb.healthcare.common.business.user.domain.entity.User;
 import com.kb.healthcare.common.business.user.domain.entity.UserIdentifier;
@@ -14,7 +15,8 @@ import com.kb.healthcare.common.dto.response.ApiResponse;
 import com.kb.healthcare.common.exception.RecordGlobalException;
 import com.kb.healthcare.record.dto.request.RecordFailEvent;
 import com.kb.healthcare.record.dto.request.RecordRequestDto;
-import com.kb.healthcare.record.dto.response.RecordResponseDto;import jakarta.servlet.http.HttpServletRequest;
+import com.kb.healthcare.record.dto.response.RecordResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -62,15 +64,10 @@ public class RecordApiService {
         }
 
         final Source source = Optional.ofNullable(
-                sourceService.findByUserIdAndRecordKeyAndMode(
-                        Long.parseLong(userId),
-                        recordKey,
-                        request.data().source().mode()
-                )
+                sourceService.findByRecordKeyAndMode(recordKey, request.data().source().mode())
         ).orElseGet(() -> {
             RecordRequestDto.Source requestSource = request.data().source();
             return sourceService.save(Source.builder()
-                    .user(user)
                     .recordKey(recordKey)
                     .mode(requestSource.mode())
                     .vender(requestSource.product().vender())
@@ -82,17 +79,17 @@ public class RecordApiService {
                     .build()
             );
         });
+
         List<com.kb.healthcare.common.business.record.domain.entity.Record> records = request.data().entries().stream()
                 .map(entry -> Record.builder()
-                        .user(user)
-                        .source(source)
-                        .steps(Math.round(entry.steps()))
-                        .periodFrom(entry.period().from())
-                        .periodTo(entry.period().to())
-                        .distanceUnit(entry.distance().unit())
-                        .distanceValue(entry.distance().value())
-                        .caloriesUnit(entry.calories().unit())
-                        .caloriesValue(entry.calories().value())
+                            .source(source)
+                            .steps(Math.round(entry.steps()))
+                            .periodFrom(entry.period().from())
+                            .periodTo(entry.period().to())
+                            .distanceUnit(entry.distance().unit())
+                            .distanceValue(entry.distance().value())
+                            .caloriesUnit(entry.calories().unit())
+                            .caloriesValue(entry.calories().value())
                         .build()
                 )
                 .toList();
@@ -135,14 +132,11 @@ public class RecordApiService {
         }
 
         // Source 처리
-        Source source = sourceService.findByUserIdAndRecordKeyAndMode(
-                Long.parseLong(userId), recordKey, sourceDto.mode()
-        );
+        Source source = sourceService.findByRecordKeyAndMode(recordKey, sourceDto.mode());
 
         if (source == null) {
             source = sourceService.save(
                     Source.builder()
-                            .user(user)
                             .recordKey(recordKey)
                             .mode(sourceDto.mode())
                             .vender(sourceDto.product().vender())
@@ -164,7 +158,6 @@ public class RecordApiService {
             RecordRequestDto.Entry entry = objectMapper.convertValue(entryMap, RecordRequestDto.Entry.class);
 
             batch.add(Record.builder()
-                    .user(user)
                     .source(source)
                     .steps(Math.round(entry.steps()))
                     .periodFrom(entry.period().from())
@@ -219,7 +212,7 @@ public class RecordApiService {
         return ApiResponse.<Void>builder().build();
     }
 
-    public ApiResponse<RecordResponseDto> getRecord(Jwt jwt){
+    public ApiResponse<List<RecordResponseDto>> getRecord(Jwt jwt){
         String userId = jwt.getClaimAsString("userId");
 
         // User 조회
@@ -232,17 +225,19 @@ public class RecordApiService {
         List<FindRecordResDto> flatRecords = recordService.findByRecordsByUserId(Long.parseLong(userId));
 
         // recordKey 기준으로 그룹핑
+//        Map<String, List<FindRecordResDto>> groupedByRecordKey = flatRecords.stream()
+//                                                                    .collect(Collectors.groupingBy(FindRecordResDto::recordKey));
+
         Map<String, List<FindRecordResDto>> groupedByRecordKey = flatRecords.stream()
-                                                                    .collect(Collectors.groupingBy(FindRecordResDto::recordKey));
+                .collect(Collectors.groupingBy(FindRecordResDto::recordKey));
 
-        // RecordResponseDto로 변환 (첫 번째 recordKey만 가져오기)
-        RecordResponseDto response = groupedByRecordKey.entrySet().stream()
+        List<RecordResponseDto> responses = groupedByRecordKey.entrySet().stream()
                 .map(entry -> convertToRecordResponseDto(entry.getKey(), entry.getValue()))
-                .findFirst()  // ← 첫 번째만!
-                .orElse(null);
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-        return ApiResponse.<RecordResponseDto>builder()
-                .data(response)
+        return ApiResponse.<List<RecordResponseDto>>builder()
+                .data(responses)
                 .build();
     }
 
