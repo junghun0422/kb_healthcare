@@ -6,6 +6,7 @@ import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -33,6 +34,9 @@ public class Record {
 
     @Column(name = "period_to", nullable = false)
     private LocalDateTime periodTo;
+
+    @Column(name = "period_date", insertable = false, updatable = false)
+    private LocalDate periodDate;
 
     @Column(name = "distance_value", nullable = false)
     private Float distanceValue;

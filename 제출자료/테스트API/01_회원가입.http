@@ -1,0 +1,9 @@
+### 회원가입
+POST localhost:9000/v1/user/join
+
+{
+    "name" : "아거",
+    "nickName" : "허당 미운오리",
+    "email" : "kb_duck@kbhc.co.kr",
+    "password" : "duck123!@#"
+}

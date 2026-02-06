@@ -1,5 +1,8 @@
 package com.kb.healthcare.record.service;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kb.healthcare.common.business.record.domain.entity.Record;
@@ -108,7 +111,8 @@ public class RecordApiService {
             UserState.유효하지_않은_고객.getMessage()
         ));
 
-        // JSON 파싱
+        // 여기서 결국 메모리에 올리니까 문제......
+        // client의 요청 구조를 고정하거나 변경할수 없는 제약.....
         Map<String, Object> rootMap = objectMapper.readValue(
                 request.getInputStream(),
                 new TypeReference<>() {}
@@ -239,6 +243,111 @@ public class RecordApiService {
         return ApiResponse.<List<RecordResponseDto>>builder()
                 .data(responses)
                 .build();
+    }
+
+    public ApiResponse<Void>    saveStream(Jwt jwt, HttpServletRequest request) throws IOException {
+        String userId = jwt.getClaimAsString("userId");
+        User user = userService.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new RecordGlobalException(
+                        UserState.유효하지_않은_고객.getCode(),
+                        UserState.유효하지_않은_고객.getMessage()
+                ));
+
+        JsonFactory factory = new JsonFactory();
+        JsonParser parser = factory.createParser(request.getInputStream());
+
+        String recordKey = null;
+        LocalDateTime lastUpdate = null;
+        String memo = null;
+        RecordRequestDto.Source sourceDto = null;
+
+        List<Record> batch = new ArrayList<>(100);
+        int totalCount = 0;
+        Source source = null;
+
+        while (parser.nextToken() != null) {
+            String fieldName = parser.getCurrentName();
+
+            if ("recordkey".equals(fieldName)) {
+                parser.nextToken();
+                recordKey = parser.getText();
+            } else if ("lastUpdate".equals(fieldName)) {
+                parser.nextToken();
+                lastUpdate = parseDateTime(parser.getText());
+            } else if ("source".equals(fieldName)) {
+                parser.nextToken();
+                sourceDto = objectMapper.readValue(parser, RecordRequestDto.Source.class);
+
+                // Source 처리 (한번만)
+                source = sourceService.findByRecordKeyAndMode(recordKey, sourceDto.mode());
+                if (source == null) {
+                    source = sourceService.save(Source.builder()
+                            .recordKey(recordKey)
+                            .mode(sourceDto.mode())
+                            .vender(sourceDto.product().vender())
+                            .productName(sourceDto.product().name())
+                            .type(sourceDto.type())
+                            .name(sourceDto.name())
+                            .memo(memo)
+                            .lastUpdate(lastUpdate)
+                            .build());
+                }
+            } else if ("entries".equals(fieldName)) {
+                parser.nextToken(); // START_ARRAY
+
+                // entries를 하나씩 스트리밍 처리
+                while (parser.nextToken() != JsonToken.END_ARRAY) {
+                    RecordRequestDto.Entry entry = objectMapper.readValue(
+                            parser,
+                            RecordRequestDto.Entry.class
+                    );
+
+                    batch.add(Record.builder()
+                            .source(source)
+                            .steps(Math.round(entry.steps()))
+                            .periodFrom(entry.period().from())
+                            .periodTo(entry.period().to())
+                            .distanceUnit(entry.distance().unit())
+                            .distanceValue(entry.distance().value())
+                            .caloriesUnit(entry.calories().unit())
+                            .caloriesValue(entry.calories().value())
+                            .build());
+
+                    totalCount++;
+
+                    // 100건마다 배치 저장
+                    if (batch.size() >= 100) {
+                        try {
+                            recordService.saveAllInNewTransaction(batch);
+                            log.info("배치 저장: {}건 (누적: {}건)", batch.size(), totalCount);
+                        } catch (Exception e) {
+                            log.error("배치 저장 실패 → DLQ 저장: {}건", batch.size());
+                            eventPublisher.publishEvent(
+                                    new RecordFailEvent(user.getId(), recordKey,
+                                            source.getId(), new ArrayList<>(batch), e.getMessage())
+                            );
+                        }
+                        batch.clear();
+                    }
+                }
+            }
+        }
+
+        // 남은 배치 처리
+        if (!batch.isEmpty()) {
+            try {
+                recordService.saveAllInNewTransaction(batch);
+            } catch (Exception e) {
+                eventPublisher.publishEvent(
+                        new RecordFailEvent(user.getId(), recordKey,
+                                source.getId(), new ArrayList<>(batch), e.getMessage())
+                );
+            }
+        }
+
+        parser.close();
+        log.info("총 {}건 저장 완료", totalCount);
+        return ApiResponse.<Void>builder().build();
     }
 
     private RecordResponseDto convertToRecordResponseDto(String recordKey, List<FindRecordResDto> records) {

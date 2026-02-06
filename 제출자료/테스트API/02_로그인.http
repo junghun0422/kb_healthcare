@@ -1,0 +1,7 @@
+### 로그인
+POST localhost:9000/v1/user/login
+
+{
+    "email" : "kb_duck@kbhc.co.kr",
+    "password" : "duck123!@#"
+}

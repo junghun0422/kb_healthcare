@@ -5,7 +5,6 @@ import com.kb.healthcare.authserver.dto.request.LoginRequestDto;
 import com.kb.healthcare.authserver.dto.response.TokenResponseDto;
 import com.kb.healthcare.authserver.exception.GlobalException;
 import com.kb.healthcare.common.business.user.domain.entity.User;
-import com.kb.healthcare.common.business.user.service.UserIdentifierService;
 import com.kb.healthcare.common.business.user.service.UserService;
 import com.kb.healthcare.common.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.kb.healthcare.common.utils.KBEnums.*;
+import static com.kb.healthcare.common.utils.KBEnums.UserState;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +29,6 @@ import static com.kb.healthcare.common.utils.KBEnums.*;
 public class AuthServerApiService {
 
     private final UserService userService;
-    private final UserIdentifierService userIdentifierService;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtEncoder jwtEncoder;

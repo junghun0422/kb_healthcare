@@ -44,10 +44,10 @@ public class RecordController {
 
     @PreAuthorize("hasAuthority('SCOPE_write') && hasAnyRole('USER')")
     @PostMapping("stream")
-    public ResponseEntity<?> saveStreaming(
+    public ResponseEntity<?> saveStream(
             @AuthenticationPrincipal Jwt jwt,
             HttpServletRequest request) throws IOException {
-        return ResponseEntity.ok().body(service.saveStreaming(jwt, request));
+        return ResponseEntity.ok().body(service.saveStream(jwt, request));
     }
 
     @PreAuthorize("hasAuthority('SCOPE_read') && hasAnyRole('USER')")
